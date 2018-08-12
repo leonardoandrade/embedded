@@ -13,7 +13,7 @@ type SensorEvent struct {
 	Value  float64
 }
 
-func WatchTemperature(periodSeconds int) (<-chan SensorEvent, error) {
+func WatchTemperature(periodSeconds int, sensorName string) (<-chan SensorEvent, error) {
 	events := make(chan (SensorEvent))
 	sensors, err := ds18b20.Sensors()
 	if err != nil {
@@ -26,7 +26,7 @@ func WatchTemperature(periodSeconds int) (<-chan SensorEvent, error) {
 			if err != nil {
 				fmt.Errorf("error when reading temperature:%v", err)
 			} else {
-				events <- SensorEvent{"temperature", t}
+				events <- SensorEvent{sensorName, t}
 			}
 			time.Sleep(time.Duration(periodSeconds) * time.Second)
 		}
@@ -35,16 +35,34 @@ func WatchTemperature(periodSeconds int) (<-chan SensorEvent, error) {
 	return events, nil
 }
 
-func WatchHumidity(periodSeconds int, pin int) (<-chan SensorEvent, error) {
+func WatchTemperatureDHT11(periodSeconds int, sensorName string, pin int) (<-chan SensorEvent, error) {
+	events := make(chan (SensorEvent))
+
+	go func() {
+		for {
+			temperature, _, err := dht.ReadDHTxx(dht.DHT11, pin, false)
+			if err != nil {
+				fmt.Printf("error when reading temperature :%v\n", err)
+			} else {
+				events <- SensorEvent{sensorName, float64(temperature)}
+			}
+			time.Sleep(time.Duration(periodSeconds) * time.Second)
+		}
+	}()
+
+	return events, nil
+}
+
+func WatchHumidity(periodSeconds int, sensorName string, pin int) (<-chan SensorEvent, error) {
 	events := make(chan (SensorEvent))
 
 	go func() {
 		for {
 			_, humidity, err := dht.ReadDHTxx(dht.DHT11, pin, false)
 			if err != nil {
-				fmt.Errorf("error when reading humidity :%v", err)
+				fmt.Printf("error when reading humidity :%v\n", err)
 			} else {
-				events <- SensorEvent{"humidity", float64(humidity)}
+				events <- SensorEvent{sensorName, float64(humidity)}
 			}
 			time.Sleep(time.Duration(periodSeconds) * time.Second)
 		}
