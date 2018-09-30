@@ -1,20 +1,20 @@
-package main
+package sensors
 
 import (
 	"fmt"
 	"github.com/d2r2/go-dht"
 	"github.com/stianeikeland/go-rpio"
 	"github.com/yryz/ds18b20"
+	"model"
 	"time"
 )
 
-type SensorEvent struct {
-	Sensor string
-	Value  float64
+func WatchTemperature(periodSeconds int, sensorName string) (<-chan model.SensorEvent, error) {
+	return WatchTemperatureBySensorIndex(periodSeconds, sensorName, 0)
 }
 
-func WatchTemperature(periodSeconds int, sensorName string) (<-chan SensorEvent, error) {
-	events := make(chan (SensorEvent))
+func WatchTemperatureBySensorIndex(periodSeconds int, sensorName string, sensorIndex int) (<-chan model.SensorEvent, error) {
+	events := make(chan (model.SensorEvent))
 	sensors, err := ds18b20.Sensors()
 	if err != nil {
 		return nil, err
@@ -22,11 +22,11 @@ func WatchTemperature(periodSeconds int, sensorName string) (<-chan SensorEvent,
 
 	go func() {
 		for {
-			t, err := ds18b20.Temperature(sensors[0])
+			t, err := ds18b20.Temperature(sensors[sensorIndex])
 			if err != nil {
 				fmt.Errorf("error when reading temperature:%v", err)
 			} else {
-				events <- SensorEvent{sensorName, t}
+				events <- model.SensorEvent{sensorName, t}
 			}
 			time.Sleep(time.Duration(periodSeconds) * time.Second)
 		}
@@ -35,8 +35,8 @@ func WatchTemperature(periodSeconds int, sensorName string) (<-chan SensorEvent,
 	return events, nil
 }
 
-func WatchTemperatureDHT11(periodSeconds int, sensorName string, pin int) (<-chan SensorEvent, error) {
-	events := make(chan (SensorEvent))
+func WatchTemperatureDHT11(periodSeconds int, sensorName string, pin int) (<-chan model.SensorEvent, error) {
+	events := make(chan (model.SensorEvent))
 
 	go func() {
 		for {
@@ -44,7 +44,7 @@ func WatchTemperatureDHT11(periodSeconds int, sensorName string, pin int) (<-cha
 			if err != nil {
 				fmt.Printf("error when reading temperature :%v\n", err)
 			} else {
-				events <- SensorEvent{sensorName, float64(temperature)}
+				events <- model.SensorEvent{sensorName, float64(temperature)}
 			}
 			time.Sleep(time.Duration(periodSeconds) * time.Second)
 		}
@@ -53,8 +53,8 @@ func WatchTemperatureDHT11(periodSeconds int, sensorName string, pin int) (<-cha
 	return events, nil
 }
 
-func WatchHumidity(periodSeconds int, sensorName string, pin int) (<-chan SensorEvent, error) {
-	events := make(chan (SensorEvent))
+func WatchHumidity(periodSeconds int, sensorName string, pin int) (<-chan model.SensorEvent, error) {
+	events := make(chan (model.SensorEvent))
 
 	go func() {
 		for {
@@ -62,7 +62,7 @@ func WatchHumidity(periodSeconds int, sensorName string, pin int) (<-chan Sensor
 			if err != nil {
 				fmt.Printf("error when reading humidity :%v\n", err)
 			} else {
-				events <- SensorEvent{sensorName, float64(humidity)}
+				events <- model.SensorEvent{sensorName, float64(humidity)}
 			}
 			time.Sleep(time.Duration(periodSeconds) * time.Second)
 		}
@@ -71,8 +71,8 @@ func WatchHumidity(periodSeconds int, sensorName string, pin int) (<-chan Sensor
 	return events, nil
 }
 
-func WatchNoise(periodSeconds int, pinNumber int) (<-chan SensorEvent, error) {
-	events := make(chan (SensorEvent))
+func WatchNoise(periodSeconds int, pinNumber int) (<-chan model.SensorEvent, error) {
+	events := make(chan (model.SensorEvent))
 
 	if err := rpio.Open(); err != nil {
 		fmt.Errorf("error opening rpio :%v", err)
@@ -99,7 +99,7 @@ func WatchNoise(periodSeconds int, pinNumber int) (<-chan SensorEvent, error) {
 				}
 				time.Sleep((time.Duration(periodSeconds) * time.Second) / 10)
 			}
-			events <- SensorEvent{"sound_events", float64(soundEvents)}
+			events <- model.SensorEvent{"sound_events", float64(soundEvents)}
 		}
 	}()
 

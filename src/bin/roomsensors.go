@@ -1,13 +1,16 @@
 package main
 
 import (
+	"data"
 	"fmt"
+	"model"
 	"os"
+	"sensors"
 )
 
-func main() {
+func _main() {
 
-	influxDBConn := InfluxDBConnection{
+	influxDBConn := data.InfluxDBConnection{
 		Host:     os.Getenv("INFLUXDB_HOST"),
 		Database: "house_sensors",
 		Username: os.Getenv("INFLUXDB_USER"),
@@ -16,15 +19,15 @@ func main() {
 	}
 
 	samplingPeriod := 3
-	temperatureEvents, err := WatchTemperature(samplingPeriod)
-	humidityEvents, err := WatchHumidity(samplingPeriod, 18)
-	noiseEvents, err := WatchNoise(samplingPeriod, 21)
+	temperatureEvents, err := sensors.WatchTemperature(samplingPeriod, "temperature")
+	humidityEvents, err := sensors.WatchHumidity(samplingPeriod, "humidity", 18)
+	noiseEvents, err := sensors.WatchNoise(samplingPeriod, 21)
 	if err != nil {
 		fmt.Errorf("%v", err)
 	}
 
 	for {
-		var event = SensorEvent{}
+		var event = model.SensorEvent{}
 		select {
 		case event = <-temperatureEvents:
 			break
@@ -34,7 +37,7 @@ func main() {
 			break
 		}
 		fmt.Printf("event: %v\n", event)
-		err := SendEventToInfluxDB(influxDBConn, event)
+		err := data.SendEventToInfluxDB(influxDBConn, event)
 		if err != nil {
 			fmt.Errorf("%v", err)
 		}
