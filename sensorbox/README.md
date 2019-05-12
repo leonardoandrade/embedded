@@ -1,7 +1,9 @@
 # Sensor Box
 
-A sensor box with following specs:
- - Microcrontroler Arduino Nano
+![picture](./img/sensorbox_12_05_2019.png)
+
+A sensor box to measure stuff and send to the internet. 
+Following specs:
+ - Microcrontroler ESP8826 (Wemos D1 Mini)
  - DHT11 (temperature / Humidity)
- - MQ134 (air quality)
- - NRF24l01 (wireless communication)
+ - MQ135 (air quality)
