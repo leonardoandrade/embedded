@@ -34,12 +34,6 @@ void turn_off_relay()
   digitalWrite(RELAY_PIN, LOW);
 }
 
-
-void message_lcd(char * upper_line, char * lower_line) {
-
-
-}
-
 void display_values_lcd(LiquidCrystal_I2C lcd, float temperature, float humidity, float air_quality)
 {
 
@@ -47,7 +41,9 @@ void display_values_lcd(LiquidCrystal_I2C lcd, float temperature, float humidity
   sprintf(line1, "T: %d.%01dc H:%d%%", (int)temperature, (int)(temperature*10)%10, (int) humidity);
   Serial.print("line1:");
   Serial.println(line1);
- 
+  lcd.setCursor(0,0);
+  lcd.print(line1);
+  
   char line2[16];
   sprintf(line2, "Air quality: %d", (int)air_quality);
   Serial.print("line2:");
@@ -65,6 +61,7 @@ void reset_lcd(LiquidCrystal_I2C lcd)
   lcd.setCursor(0,1);
   lcd.print("                ");
   lcd.noBacklight();
+
 }
 
 void record_value(char* sensor, float value)
@@ -143,7 +140,10 @@ void setup(){
   }
 
  
-  
+  // let the air sensor heat up for 10 seconds
+  turn_on_relay();
+  delay(10000);
+
   float temperature =  dht.readTemperature();  
   Serial.print("Temperature = ");
   Serial.println( temperature);
@@ -152,7 +152,7 @@ void setup(){
   Serial.print("Humidity = ");
   Serial.println(humidity);
 
-  float air_quality = analogRead(0);    
+  float air_quality = 99.0; //analogRead(0);    
   Serial.print("Air Quality = ");
   Serial.println(air_quality);
   
@@ -183,10 +183,11 @@ void setup(){
   turn_off_relay();
 
   // run every 5 minutes
-  ESP.deepSleep(300e6); 
+  ESP.deepSleep(60e6); 
 }
 
 void loop()
 {
 
+ // no need for loop in deep-sleep
 }
