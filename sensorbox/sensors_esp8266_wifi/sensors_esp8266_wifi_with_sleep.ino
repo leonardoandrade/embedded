@@ -152,7 +152,7 @@ void setup(){
   Serial.print("Humidity = ");
   Serial.println(humidity);
 
-  float air_quality = 99.0; //analogRead(0);    
+  float air_quality = analogRead(0);    
   Serial.print("Air Quality = ");
   Serial.println(air_quality);
   
@@ -183,7 +183,7 @@ void setup(){
   turn_off_relay();
 
   // run every 5 minutes
-  ESP.deepSleep(60e6); 
+  ESP.deepSleep(300e6); 
 }
 
 void loop()
