@@ -9,8 +9,6 @@
 
 #define DHTPIN D7
 
-#define RELAY_PIN D8
-
 #define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
@@ -23,16 +21,6 @@ const char* host = INFLUXDB_HOST;
 const char* db = INFLUXDB_DB;
 const char* http_credentials = INFLUXDB_DB_HTTP_CREDENTIALS;
 
-
-void turn_on_relay()
-{
-  digitalWrite(RELAY_PIN, HIGH);
-}
-
-void turn_off_relay()
-{
-  digitalWrite(RELAY_PIN, LOW);
-}
 
 
 void message_lcd(char * upper_line, char * lower_line) {
@@ -142,7 +130,10 @@ void setup(){
     lcd.print("connecting...");
   }
 
- 
+}
+
+void loop()
+{
   
   float temperature =  dht.readTemperature();  
   Serial.print("Temperature = ");
@@ -156,7 +147,6 @@ void setup(){
   Serial.print("Air Quality = ");
   Serial.println(air_quality);
   
-  //display_values_lcd(lcd, temperature, humidity, air_quality);
 
   char line1[16];
   sprintf(line1, "T: %d.%01dc H:%d%%", (int)temperature, (int)(temperature*10)%10, (int) humidity);
@@ -180,13 +170,4 @@ void setup(){
   // show info for 3 seconds
   delay(3000);
   reset_lcd(lcd);
-  turn_off_relay();
-
-  // run every 5 minutes
-  ESP.deepSleep(300e6); 
-}
-
-void loop()
-{
-
 }
