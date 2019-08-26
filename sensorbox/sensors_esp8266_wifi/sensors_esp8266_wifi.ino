@@ -146,7 +146,7 @@ void setup(){
   lcd.setCursor(0,0);
   lcd.print("Sensor box");
   lcd.setCursor(0,1);
-  lcd.print("STARTED 4");
+  lcd.print("version 1.0.6");
 
   sensors.begin();
 
@@ -221,14 +221,12 @@ void loop()
 
   lcd.setCursor(0,1);
   lcd.print(line2);
- scan_wifi();
+  //scan_wifi();
 
-  /*
-  record_value((char*)"temperature", temperature);
+  
+  record_value((char*)"temperature", temperature_celcius);
   record_value((char*)"humidity", humidity);
   record_value((char*)"air_quality", air_quality);
-*/
-  delay(3000);
 
   lcd.setCursor(0,1);
   char line_elapsed[16];
@@ -236,13 +234,16 @@ void loop()
   sprintf(line_elapsed, "Elapsed: %d       ", (int) elapsed_ms);
   lcd.print(line_elapsed);
 
-  if(elapsed_ms < 60000) {
-    delay(3000);
-  } else {
+  if(elapsed_ms < 120000) 
+  {
+    delay(1000);
+  } 
+  else 
+  {
     lcd.clear();
     lcd.setBacklight(0);
-     switch_leds_off();
-    delay(3600000);
+    switch_leds_off();
+    delay(1800000);
   }
 
 
