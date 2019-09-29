@@ -1,7 +1,5 @@
-#include "DHT.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 #include <WiFiClientSecure.h>
 #include <OneWire.h>
@@ -10,12 +8,10 @@
 
 #include "config.h"
 
-#define ONE_WIRE_BUS D6
-OneWire oneWire(ONE_WIRE_BUS);
+#define ONE_WIRE_PIN D6
+OneWire oneWire(ONE_WIRE_PIN);
 
 DallasTemperature sensors(&oneWire);
-
-
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
@@ -29,15 +25,12 @@ void scan_wifi() {
     int numberOfNetworks = WiFi.scanNetworks();
 
     for(int i =0; i<numberOfNetworks; i++){
- 
       Serial.print("Network name: ");
       Serial.println(WiFi.SSID(i));
       Serial.print("Signal strength: ");
       Serial.println(WiFi.RSSI(i));
       Serial.println("-----------------------");
- 
   }
- 
 }
 
 
@@ -61,7 +54,7 @@ void record_value(char* sensor, float value)
   if (client.connect("andrade.io", 443)) {
 
     char data[200];
-    sprintf(data, "kitchen,sensor=%s value=%d.%0.2d", sensor,  (int)value, (int)(value*100)%100);
+    sprintf(data, "outdoor,sensor=%s value=%d.%0.2d", sensor,  (int)value, (int)(value*100)%100);
     
     char authorization_header[200];
     sprintf(authorization_header, "Authorization: Basic %s", http_credentials);
@@ -89,14 +82,14 @@ void record_value(char* sensor, float value)
 
 void setup(){
 
-
+    
   Serial.begin(9600);
   Serial.setTimeout(2000);
+  Serial.print("Starting outdoor temperature sensor.");
   while(!Serial) { }
 
   
   sensors.begin();
-
 
   // start WIFI
   WiFi.begin(ssid, password);
@@ -104,19 +97,30 @@ void setup(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print("Connecting..");
-    lcd.setCursor(0,1);
-    lcd.print("connecting...");
   }
+
+
+  /*
+  // get temperature and save into remote influxdb
+  sensors.requestTemperatures(); 
+  float temperature_celsius = sensors.getTempCByIndex(0);
+  Serial.print("Temperature = ");
+  Serial.println( temperature_celsius);
+  record_value((char*)"temperature", temperature_celsius);
   
+  // run every 5 minutes
+  ESP.deepSleep(30e6); */
 }
 
 void loop()
+{
+   // no need for loop in deep-sleep
 
-  sensors.requestTemperatures(); 
-  float temperature = sensors.getTempCByIndex(0);
+
+    sensors.requestTemperatures(); 
+  float temperature_celsius = sensors.getTempCByIndex(0);
   Serial.print("Temperature = ");
-  Serial.println( temperature);
-  delay(1800000);
-
- 
+  Serial.println( temperature_celsius);
+  record_value((char*)"temperature", temperature_celsius);
+  delay(10000);
 }
