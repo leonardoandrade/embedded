@@ -13,25 +13,14 @@ OneWire oneWire(ONE_WIRE_PIN);
 
 DallasTemperature sensors(&oneWire);
 
+
+#define BATERY_ANALOG 0
+
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* host = INFLUXDB_HOST;
 const char* db = INFLUXDB_DB;
 const char* http_credentials = INFLUXDB_DB_HTTP_CREDENTIALS;
-
-
-void scan_wifi() {
-
-    int numberOfNetworks = WiFi.scanNetworks();
-
-    for(int i =0; i<numberOfNetworks; i++){
-      Serial.print("Network name: ");
-      Serial.println(WiFi.SSID(i));
-      Serial.print("Signal strength: ");
-      Serial.println(WiFi.RSSI(i));
-      Serial.println("-----------------------");
-  }
-}
 
 
 void record_value(char* sensor, float value)
@@ -100,6 +89,8 @@ void setup(){
   }
 
 
+
+  // Deep sleep approach:
   /*
   // get temperature and save into remote influxdb
   sensors.requestTemperatures(); 
@@ -114,13 +105,21 @@ void setup(){
 
 void loop()
 {
-   // no need for loop in deep-sleep
 
 
-    sensors.requestTemperatures(); 
+  // temperature
+  sensors.requestTemperatures(); 
   float temperature_celsius = sensors.getTempCByIndex(0);
   Serial.print("Temperature = ");
-  Serial.println( temperature_celsius);
+  Serial.println(temperature_celsius);
   record_value((char*)"temperature", temperature_celsius);
-  delay(10000);
+
+  // battery level (TODO: calibrate)
+  float battery_level = analogRead(0);
+  record_value((char*)"battery", battery_level);
+  Serial.print("Battery = ");
+  Serial.println(battery_level);
+ 
+  // measure every 30 minutes
+  delay(1800000);
 }
