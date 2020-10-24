@@ -1,18 +1,24 @@
-#include <Servo.h>
-Servo servo;
-int angle = 0;
+
+#include "roll_servo.h"
+
+RollServo *rollServo;
 
 void setup()
 {
-    servo.attach(8);
-    servo.write(0);
-    delay(2000);
-    servo.write(90);
-    delay(2000);
-    servo.write(180);
-    delay(2000);
+    rollServo = new RollServo(15);
 }
 
 void loop()
 {
+
+    rollServo->leftRoll();
+    delay(1000);
+
+    rollServo->rightRoll();
+
+    delay(1000);
+
+    rollServo->reset();
+
+    delay(3000);
 }
