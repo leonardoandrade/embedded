@@ -1,24 +1,26 @@
+#include "dc_motor.h"
 
-#include "roll_servo.h"
+void increaseAndStopDCMotor()
+{
 
-RollServo *rollServo;
+    // D8, D7 and D6 on Wemos D1
+    DCMotor *dcMotor = new DCMotor(15, 13, 12);
+    dcMotor->start();
+    for (int i = 0; i < 20; i++)
+    {
+        dcMotor->increaseSpeed();
+        delay(100);
+    }
+    delay(10000);
+    dcMotor->stop();
+    delay(3000);
+}
 
 void setup()
 {
-    rollServo = new RollServo(15);
 }
 
 void loop()
 {
-
-    rollServo->leftRoll();
-    delay(1000);
-
-    rollServo->rightRoll();
-
-    delay(1000);
-
-    rollServo->reset();
-
-    delay(3000);
+    increaseAndStopDCMotor();
 }

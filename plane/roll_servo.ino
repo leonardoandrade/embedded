@@ -1,8 +1,8 @@
 
 #include "roll_servo.h"
 
-#define ROLL_LEFT_ANGLE 110
-#define ROLL_RIGHT_ANGLE 70
+#define ROLL_LEFT_ANGLE 180
+#define ROLL_RIGHT_ANGLE 0
 #define BASE_ANGLE 90
 
 RollServo::RollServo(int pin)
