@@ -21,6 +21,8 @@ const char* db = INFLUXDB_DB;
 const char* http_credentials = INFLUXDB_DB_HTTP_CREDENTIALS;
 
 OneWire oneWire(TEMPERATURE_PIN); 
+
+
 DallasTemperature sensors(&oneWire);
 
 void setup() {
@@ -33,13 +35,14 @@ void setup() {
   WiFi.begin(ssid, password);
  
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print("Connecting..");
+    delay(2000);
+    Serial.println("Connecting..");
   }
+  Serial.println("Connected!");
 }
 
 
-void send_to_remote_influxdb(double air_temperature, int soil_moisture)
+void send_to_remote_influxdb(double air_temperature, int soil_moisture, int wifi_rssi)
 {
   int tries = 5;
   Serial.println(WiFi.status());
@@ -56,21 +59,26 @@ void send_to_remote_influxdb(double air_temperature, int soil_moisture)
   
   WiFiClientSecure client;
 
-
+  client.setInsecure(); // because this device does not know current date to validate certificates
   if (client.connect("andrade.io", 443)) {
+    
     char data_temperature[100];
-    sprintf(data_temperature, "outdoor,sensor=air_temperature value=%d.%0.2d",  (int)air_temperature, (int)(air_temperature*100)%100);
+    
+    sprintf(data_temperature, "outside,sensor=air_temperature value=%d.%0.2d",  (int)air_temperature, (int)(air_temperature*100)%100);
     
     char data_moisture[100];
-    sprintf(data_moisture, "outdoor,sensor=soil_moisture value=%d", (int)data_moisture);
+    sprintf(data_moisture, "outside,sensor=soil_moisture value=%d", (int)soil_moisture);
 
-    
+
+    char data_wifi_rssi[100];
+    sprintf(data_wifi_rssi, "outside,sensor=wifi_rssi value=%d", (int)wifi_rssi);
+
+
     char authorization_header[200];
     sprintf(authorization_header, "Authorization: Basic %s", http_credentials);
 
-    char data[200];
-  
-    sprintf(data, "%s\n%s", data_temperature, data_moisture);
+    char data[300];
+    sprintf(data, "%s\n%s\n%s", data_temperature, data_moisture, data_wifi_rssi);
 
     client.println("POST /influxdb/write?db=agro HTTP/1.1");
     client.println("Host: " + (String)"andrade.io");
@@ -89,7 +97,10 @@ void send_to_remote_influxdb(double air_temperature, int soil_moisture)
     Serial.println(response);
   }
   else {
-     Serial.println("ERROR");
+    char buf[1000];
+    client.getLastSSLError(buf, 100); 
+    Serial.print("ERROR: ");
+    Serial.println(buf);
   }
   
 }
@@ -101,9 +112,14 @@ void loop() {
  Serial.println(air_temperature);
   
  int soil_moisture = analogRead(A0);
- Serial.print("Soil moisture is: "); 
+ Serial.print("Soil moisture is: ");
  Serial.println(soil_moisture);
 
- send_to_remote_influxdb(air_temperature, soil_moisture);
- delay(1000); 
+ 
+ int rssi_dbm = WiFi.RSSI();
+ Serial.print("Wifi strength: ");
+ Serial.println(rssi_dbm);
+
+ send_to_remote_influxdb(air_temperature, soil_moisture, rssi_dbm);
+ delay(60000);
 }
