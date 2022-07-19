@@ -106,10 +106,26 @@ void send_to_remote_influxdb(double air_temperature, int soil_moisture, int wifi
 }
 
 void loop() {
- sensors.requestTemperatures(); 
- double air_temperature = sensors.getTempCByIndex(0);
- Serial.print("Temp celsius: "); 
- Serial.println(air_temperature);
+ 
+
+
+ double air_temperature = -127;
+
+ int retries_temperature = 5;
+ for(int i=0; i<retries_temperature; i++) {
+   sensors.requestTemperatures(); 
+   air_temperature = sensors.getTempCByIndex(0);
+   if(air_temperature > -100.0) {
+     Serial.print("Temp celsius: "); 
+     Serial.println(air_temperature);
+     break;
+   }
+   Serial.println("ERROR getting temperature"); 
+
+   delay(1000);
+   
+ }
+
   
  int soil_moisture = analogRead(A0);
  Serial.print("Soil moisture is: ");
