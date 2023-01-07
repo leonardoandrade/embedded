@@ -7,7 +7,7 @@
 
 
 
-static LED_GPIO = 33;
+static int LED_GPIO = 33;
 
 int app_main()
 {
