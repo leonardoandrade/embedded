@@ -25,8 +25,10 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "driver/gpio.h"
+#include "rom/ets_sys.h"
 
-#include "DHT22.h"
+
+#include "dht22.h"
 
 // == global defines =============================================
 
@@ -139,11 +141,11 @@ To request data from DHT:
 
 int readDHT()
 {
-int uSec = 0;
+	int uSec = 0;
 
-uint8_t dhtData[MAXdhtData];
-uint8_t byteInx = 0;
-uint8_t bitInx = 7;
+	uint8_t dhtData[MAXdhtData];
+	uint8_t byteInx = 0;
+	uint8_t bitInx = 7;
 
 	for (int k = 0; k<MAXdhtData; k++) 
 		dhtData[k] = 0;
