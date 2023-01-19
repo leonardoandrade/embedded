@@ -6,12 +6,32 @@
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
+#include "esp_wifi.h"
 
+#include "./WiFiCredentials.h"
 #include "../vendor/dht22.h"
 
 #define DHT22_PIN 33
 
 static int ERROR_LED = 14;
+
+void connect_wifi()
+{
+
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = WIFI_SSID,
+            .password = WIFI_PW,
+            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
+            .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
+        },
+    };
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+    ESP_ERROR_CHECK(esp_wifi_start() );
+    
+}
 
 void enable_error_led()
 {
@@ -32,6 +52,9 @@ void app_main()
     printf("DHT Reading started\n\n");
     setDHTgpio(DHT22_PIN);
 
+    connect_wifi();
+
+
     int count = 0;
     while (1)
     {
@@ -41,9 +64,12 @@ void app_main()
         int ret = readDHT();
         errorHandler(ret);
 
-        if(ret != DHT_OK) {
+        if (ret != DHT_OK)
+        {
             enable_error_led();
-        } else {
+        }
+        else
+        {
             disable_error_led();
         }
 
