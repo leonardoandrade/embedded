@@ -43,6 +43,9 @@ void app_main()
 
     
     connect_wifi(WIFI_SSID, WIFI_PW);
+    
+    // TODO: make scan work
+    //scan_wifi_ap(WIFI_SSID);
 
     int count = 0;
     while (1)
@@ -64,7 +67,7 @@ void app_main()
 
         printf("Temperature: %.1f\n", getTemperature());
         printf("Humidity:    %.1f\n", getHumidity());
-
+        scan_wifi_ap(WIFI_SSID);
         vTaskDelay(100);
     }
 }

@@ -1,10 +1,12 @@
-killall_screen:
+setup:
+	. ~/software/esp/esp-idf/export.sh
+clean:
 	killall screen || true
 
-build:
+build: */*.c
 	idf.py build
 
 flash:
 	idf.py -p /dev/ttyUSB0 flash
 
-all: killall_screen build flash
+all: clean build flash
