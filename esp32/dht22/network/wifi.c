@@ -157,7 +157,6 @@ bool scan_wifi_ap(const char *ssid)
                      g_ap_list_buffer[i].rssi,
                      g_ap_list_buffer[i].bssid,
                      g_ap_list_buffer[i].primary,
-
                      g_ap_list_buffer[i].ftm_responder ? "[FTM Responder]" : "");
         }
     }
