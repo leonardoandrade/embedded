@@ -9,7 +9,8 @@ typedef struct http_message
 } http_message;
 
 
-int send_message(char * url, http_message message);
+//int send_message(char * url, http_message message);
+int send_message(char * url);
 
 
 #endif

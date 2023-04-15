@@ -14,6 +14,8 @@
 #include "./WiFiCredentials.h"
 #include "../sensor/dht22.h"
 #include "../network/wifi.h"
+#include "../network/http_client.h"
+
 
 #define DHT22_PIN 33
 
@@ -67,7 +69,12 @@ void app_main()
 
         printf("Temperature: %.1f\n", getTemperature());
         printf("Humidity:    %.1f\n", getHumidity());
-        scan_wifi_ap(WIFI_SSID);
+        if(scan_wifi_ap(WIFI_SSID) )
+        {
+            //TODO: send actual message
+          send_message("banana");   
+        }
+
         vTaskDelay(100);
     }
 }
