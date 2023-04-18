@@ -8,5 +8,7 @@ build: */*.c
 
 flash:
 	idf.py -p /dev/ttyUSB0 flash
+server:
+	python3 -m http.server 8000
 
 all: clean build flash
