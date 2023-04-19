@@ -11,7 +11,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 
-#include "./WiFiCredentials.h"
+#include "./Credentials.h"
 #include "../sensor/dht22.h"
 #include "../network/wifi.h"
 #include "../network/http_client.h"
@@ -69,12 +69,13 @@ void app_main()
 
         printf("Temperature: %.1f\n", getTemperature());
         printf("Humidity:    %.1f\n", getHumidity());
+
         if(scan_wifi_ap(WIFI_SSID) )
         {
-            //TODO: send actual message
-          send_message("banana");   
+            send_message(INFLUX_HOST, INFLUX_AUTH,  "temperature", getTemperature());
+            send_message(INFLUX_HOST, INFLUX_AUTH, "humidity",    getHumidity());
         }
 
-        vTaskDelay(100);
+        vTaskDelay(30000 / portTICK_PERIOD_MS);
     }
 }
