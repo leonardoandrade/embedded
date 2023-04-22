@@ -117,7 +117,7 @@ void connect_wifi(const char *ssid, const char *wifi_pw)
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-bool scan_wifi_ap(const char *ssid)
+int scan_wifi_ap(const char *ssid)
 {
     if (connected == false)
     {
@@ -146,11 +146,15 @@ bool scan_wifi_ap(const char *ssid)
         ESP_LOGE(TAG, "Failed to malloc buffer to print scan results");
         return false;
     }
-
+    int bestRSSI = -9999999;
     if (esp_wifi_scan_get_ap_records(&g_scan_ap_num, (wifi_ap_record_t *)g_ap_list_buffer) == ESP_OK)
     {
+
         for (i = 0; i < g_scan_ap_num; i++)
         {
+            if(g_ap_list_buffer[i].bssid > bestRSSI) {
+                bestRSSI = g_ap_list_buffer[i].bssid;
+            }
             ESP_LOGI(TAG, "[%d][%s][rssi=%d][bssid=%d][channel=%d]"
                           "%s", i, 
                      g_ap_list_buffer[i].ssid,
@@ -164,5 +168,5 @@ bool scan_wifi_ap(const char *ssid)
     ESP_LOGI(TAG, "sta scan done");
     free(g_ap_list_buffer);
 
-    return true;
+    return bestRSSI;
 }
