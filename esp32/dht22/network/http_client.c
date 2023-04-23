@@ -148,8 +148,8 @@ int send_message(char *host, char *influx_auth, char *sensor, float value)
     sprintf(post_data, "first_floor,sensor=%s value=%d.%0.2d", sensor, (int)value, (int)(value * 100) % 100);
 
     char url[100];
-    sprintf(url, "https//%s/influxdb/write?db=house_sensors", host);
-    esp_http_client_set_url(client, );
+    sprintf(url, "https://%s/influxdb/write?db=house_sensors", host);
+    esp_http_client_set_url(client, url);
     esp_http_client_set_method(client, HTTP_METHOD_POST);
     esp_http_client_set_header(client, "Content-Type", "text/plain");
 

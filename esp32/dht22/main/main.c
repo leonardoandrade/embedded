@@ -70,8 +70,12 @@ void app_main()
         printf("Temperature: %.1f\n", getTemperature());
         printf("Humidity:    %.1f\n", getHumidity());
 
-        if(scan_wifi_ap(WIFI_SSID) )
+        if(is_connected())
         {
+
+            //TODO: send signal strength
+            scan_wifi_ap(WIFI_SSID);
+            
             send_message(INFLUX_HOST, INFLUX_AUTH,  "temperature", getTemperature());
             send_message(INFLUX_HOST, INFLUX_AUTH, "humidity",    getHumidity());
         }
