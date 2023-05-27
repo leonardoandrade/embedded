@@ -11,15 +11,14 @@
 #include "esp_event.h"
 #include "esp_log.h"
 
-#include "./Credentials.h"
+
+// Generic libraries
 #include "../sensor/dht22.h"
 #include "../network/wifi.h"
 #include "../network/http_client.h"
 
-
-#define DHT22_PIN 33
-
-static int ERROR_LED = 14;
+// Change according to the sensor you are using
+#include "./definitions_sensor_1.h"
 
 
 
@@ -37,17 +36,13 @@ void disable_error_led()
 void app_main()
 {
 
-    gpio_reset_pin(ERROR_LED);
-    gpio_set_direction(ERROR_LED, GPIO_MODE_OUTPUT);
-
     printf("DHT Reading started\n\n");
     setDHTgpio(DHT22_PIN);
 
     
     connect_wifi(WIFI_SSID, WIFI_PW);
     
-    // TODO: make scan work
-    //scan_wifi_ap(WIFI_SSID);
+    scan_wifi_ap(WIFI_SSID);
 
     int count = 0;
     while (1)
