@@ -13,24 +13,15 @@
 
 
 // Generic libraries
-#include "../sensor/dht22.h"
-#include "../network/wifi.h"
-#include "../network/http_client.h"
+#include "../../lib/sensor/dht22.h"
+#include "../../lib/network/wifi.h"
+#include "../../lib/network/http_client.h"
+#include "../../lib/led/gpio_led.h"
+
 
 // Change according to the sensor you are using
 #include "./definitions_sensor_1.h"
 
-
-
-void enable_error_led()
-{
-    gpio_set_level(ERROR_LED, true);
-}
-
-void disable_error_led()
-{
-    gpio_set_level(ERROR_LED, false);
-}
 
 
 void app_main()
@@ -38,7 +29,6 @@ void app_main()
 
     printf("DHT Reading started\n\n");
     setDHTgpio(DHT22_PIN);
-
     
     connect_wifi(WIFI_SSID, WIFI_PW);
     
@@ -55,15 +45,18 @@ void app_main()
 
         if (ret != DHT_OK)
         {
-            enable_error_led();
+            gpio_led_on(ERROR_LED);
         }
         else
         {
-            disable_error_led();
+            gpio_led_off(ERROR_LED);
+            flash_led(OK_LED, 500);
         }
 
         printf("Temperature: %.1f\n", getTemperature());
         printf("Humidity:    %.1f\n", getHumidity());
+
+
 
         if(is_connected())
         {
